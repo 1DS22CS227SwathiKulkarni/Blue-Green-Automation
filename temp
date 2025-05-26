@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        // Adjust the path to kubeconfig if needed
+        // Set Windows-style kubeconfig path (adjust username as needed)
         KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config'
     }
     stages {
@@ -44,15 +44,6 @@ pipeline {
             steps {
                 dir('User\\k8s') {
                     bat 'kubectl delete deployment flask-blue'
-                }
-            }
-        }
-
-        stage('Expose URL') {
-            steps {
-                script {
-                    def url = bat(script: 'minikube service flask-service --url', returnStdout: true).trim()
-                    echo "✅ Application is available at: ${url}"
                 }
             }
         }
