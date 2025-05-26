@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        // Set Windows-style kubeconfig path
+        // Set Windows-style kubeconfig path (adjust username as needed)
         KUBECONFIG = 'C:\\Users\\jenkins\\.kube\\config'
     }
     stages {
@@ -14,7 +14,6 @@ pipeline {
             steps {
                 dir('User') {
                     script {
-                        // Use Windows docker.exe commands
                         bat 'docker build -t flask-app:blue .'
                         bat 'docker build -t flask-app:green .'
                     }
@@ -23,8 +22,7 @@ pipeline {
         }
         stage('Deploy Blue') {
             steps {
-                dir('User') {
-                    // Use kubectl.exe with Windows batch
+                dir('User\\k8s') {
                     bat 'kubectl apply -f blue-deployment.yaml'
                     bat 'kubectl apply -f service.yaml'
                 }
@@ -32,17 +30,15 @@ pipeline {
         }
         stage('Switch to Green') {
             steps {
-                dir('User') {
+                dir('User\\k8s') {
                     bat 'kubectl apply -f green-deployment.yaml'
-                    bat """
-                    kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"green\\"}}}"
-                    """
+                    bat 'kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"green\\"}}}"'
                 }
             }
         }
         stage('Cleanup Blue') {
             steps {
-                dir('User') {
+                dir('User\\k8s') {
                     bat 'kubectl delete deployment flask-blue'
                 }
             }
@@ -52,12 +48,12 @@ pipeline {
                 script {
                     def response = bat(script: 'curl -s -o NUL -w "%{http_code}" http://localhost', returnStdout: true).trim()
                     if (response != '200') {
-                        echo "Health check failed! Rolling back..."
-                        dir('User') {
-                            bat """
-                            kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"blue\\"}}}"
-                            """
+                        echo "Health check failed! Rolling back to Blue..."
+                        dir('User\\k8s') {
+                            bat 'kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"blue\\"}}}"'
                         }
+                    } else {
+                        echo "Health check passed."
                     }
                 }
             }
