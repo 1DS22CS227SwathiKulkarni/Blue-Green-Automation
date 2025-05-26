@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: flask-container
-        image: supriya334/kaffeine-app:blue  
+        image: flask-app:blue  
         ports:
         - containerPort: 5000
         imagePullPolicy: Never
