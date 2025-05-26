@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         // Set Windows-style kubeconfig path (adjust username as needed)
-        KUBECONFIG = 'C:\\Users\\jenkins\\.kube\\config'
+        KUBECONFIG = 'C:\Program Files\Jenkins\.kube\config'
     }
     stages {
         stage('Checkout') {
