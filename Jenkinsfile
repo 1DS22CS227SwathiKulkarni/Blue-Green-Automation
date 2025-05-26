@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        // Adjust the path to kubeconfig if needed
+        // Set Windows-style kubeconfig path (adjust username as needed)
         KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config'
     }
     stages {
@@ -47,22 +47,5 @@ pipeline {
                 }
             }
         }
-
-        stage('Start Minikube') {
-            steps {
-                bat '"C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" start'
-            }
-        }
-
-        stage('Expose URL') {
-            steps {
-                script {
-                    def url = bat(returnStdout: true, script: '"C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" service flask-service --url').trim()
-                    echo "Service URL: ${url}"
-                }
-            }
-        }
-
-
     }
 }
