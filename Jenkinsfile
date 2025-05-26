@@ -52,7 +52,7 @@ pipeline {
         steps {
             script {
                 try {
-                    def output = bat(script: '"C:\\Program Files\\Minikube\\minikube.exe" service flask-service --url', returnStdout: true).trim()
+                    def output = bat(script: '"C:\\Program Files\\Kubernetes\\Minikubeube\\minikube.exe" service flask-service --url', returnStdout: true).trim()
                     echo "Application URL: ${output}"
                 } catch (err) {
                     echo "Failed to get URL. Error: ${err}"
