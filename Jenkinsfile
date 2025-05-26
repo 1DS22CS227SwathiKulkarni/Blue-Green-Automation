@@ -48,17 +48,21 @@ pipeline {
             }
         }
 
+        stage('Start Minikube') {
+            steps {
+                bat '"C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" start'
+            }
+        }
+
         stage('Expose URL') {
-        steps {
-            script {
-                try {
-                    def output = bat(script: '"C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" service flask-service --url', returnStdout: true).trim()
-                    echo "Application URL: ${output}"
-                } catch (err) {
-                    echo "Failed to get URL. Error: ${err}"
+            steps {
+                script {
+                    def url = bat(returnStdout: true, script: '"C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" service flask-service --url').trim()
+                    echo "Service URL: ${url}"
                 }
             }
         }
+
 }
     }
 }
