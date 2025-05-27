@@ -15,8 +15,8 @@ spec:
         version: blue
     spec:
       containers:
-      - name: flask-container
-        image: flask-app:blue  
-        ports:
-        - containerPort: 5000
-        imagePullPolicy: Never
+        - name: flask-container
+          image: flask-app:blue
+          ports:
+            - containerPort: 5000
+          imagePullPolicy: Never
