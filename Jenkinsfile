@@ -1,8 +1,9 @@
 pipeline {
     agent any
 
-    environment { 
-        KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config' 
+    environment {
+        // Make sure this path is accessible to Jenkins
+        KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config' // Replace with actual path if needed
     }
 
     stages {
@@ -36,7 +37,8 @@ pipeline {
             steps {
                 dir('User\\k8s') {
                     bat 'kubectl apply -f green-deployment.yaml'
-                    bat 'kubectl patch service flask-service -p "{\"spec\":{\"selector\":{\"app\":\"flask\",\"version\":\"green\"}}}"'
+                    // Correctly escaped JSON string for Windows shell
+                    bat '''kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"green\\"}}}"'''
                 }
             }
         }
