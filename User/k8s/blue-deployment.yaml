@@ -13,12 +13,10 @@ spec:
       labels:
         app: flask
         version: blue
-      annotations:
-        redeploy-timestamp: "{{timestamp}}"  # Optional: helps trigger redeploy on changes
     spec:
       containers:
         - name: flask-container
           image: flask-app:blue
           ports:
             - containerPort: 5000
-          imagePullPolicy: IfNotPresent  # Change to IfNotPresent to pull updated images if available
+          imagePullPolicy: IfNotPresent # Change to IfNotPresent to pull updated images if available

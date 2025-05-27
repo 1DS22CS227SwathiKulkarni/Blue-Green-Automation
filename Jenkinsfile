@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        // Make sure this path is accessible to Jenkins
-        KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config' // Replace with actual path if needed
+        KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config'
+        DOCKERHUB_USER = 'your_dockerhub_username'   // Replace with your Docker Hub username
+        IMAGE_TAG = "${env.BUILD_NUMBER}"            // Unique tag for each build
     }
 
     stages {
@@ -17,8 +18,20 @@ pipeline {
             steps {
                 dir('User') {
                     script {
-                        bat 'docker build -t flask-app:blue .'
-                        bat 'docker build -t flask-app:green .'
+                        bat "docker build -t %DOCKERHUB_USER%/flask-app:blue-%IMAGE_TAG% ."
+                        bat "docker tag %DOCKERHUB_USER%/flask-app:blue-%IMAGE_TAG% %DOCKERHUB_USER%/flask-app:green-%IMAGE_TAG%"
+                    }
+                }
+            }
+        }
+
+        stage('Push Images to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    script {
+                        bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                        bat "docker push %DOCKERHUB_USER%/flask-app:blue-%IMAGE_TAG%"
+                        bat "docker push %DOCKERHUB_USER%/flask-app:green-%IMAGE_TAG%"
                     }
                 }
             }
@@ -27,8 +40,12 @@ pipeline {
         stage('Deploy Blue') {
             steps {
                 dir('User\\k8s') {
-                    bat 'kubectl apply -f blue-deployment.yaml'
-                    bat 'kubectl apply -f service.yaml'
+                    script {
+                        bat """
+                        kubectl apply -f blue-deployment.yaml
+                        kubectl apply -f service.yaml
+                        """
+                    }
                 }
             }
         }
@@ -36,9 +53,10 @@ pipeline {
         stage('Deploy Green and Switch Traffic') {
             steps {
                 dir('User\\k8s') {
-                    bat 'kubectl apply -f green-deployment.yaml'
-                    // Correctly escaped JSON string for Windows shell
-                    bat '''kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"green\\"}}}"'''
+                    script {
+                        bat 'kubectl apply -f green-deployment.yaml'
+                        bat '''kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"green\\"}}}"'''
+                    }
                 }
             }
         }
