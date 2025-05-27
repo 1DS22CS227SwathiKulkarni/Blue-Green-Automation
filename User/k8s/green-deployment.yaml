@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask-green-latest
+  name: flask-green
 spec:
   replicas: 1
   selector:
@@ -13,6 +13,8 @@ spec:
       labels:
         app: flask
         version: green
+      annotations:
+        redeploy-timestamp: "{{timestamp}}" # Replace with actual timestamp during deployment
     spec:
       containers:
         - name: flask-container

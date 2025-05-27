@@ -5,9 +5,9 @@ metadata:
 spec:
   selector:
     app: flask
-    version: blue  # Will patch to green later
+    version: blue # Default to blue; will patch to green when needed
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 5000
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
   type: NodePort
