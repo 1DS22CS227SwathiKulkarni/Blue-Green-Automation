@@ -1,9 +1,10 @@
 pipeline {
     agent any
-    environment {
-        // Set Windows-style kubeconfig path (adjust username as needed)
-        KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config'
+
+    environment { 
+        KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config' 
     }
+
     stages {
         stage('Checkout') {
             steps {
@@ -31,11 +32,11 @@ pipeline {
             }
         }
 
-        stage('Deploy and Switch to Green') {
+        stage('Deploy Green and Switch Traffic') {
             steps {
                 dir('User\\k8s') {
                     bat 'kubectl apply -f green-deployment.yaml'
-                    bat 'kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"green\\"}}}"'
+                    bat 'kubectl patch service flask-service -p "{\"spec\":{\"selector\":{\"app\":\"flask\",\"version\":\"green\"}}}"'
                 }
             }
         }
@@ -46,6 +47,12 @@ pipeline {
                     bat 'kubectl delete deployment flask-blue'
                 }
             }
+        }
+    }
+
+    post {
+        failure {
+            echo 'Deployment failed. Check the logs for more information.'
         }
     }
 }
