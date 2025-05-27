@@ -41,7 +41,7 @@ pipeline {
             steps {
                 dir('User\\k8s') {
                     script {
-                        bat "powershell -Command \"(Get-Content blue-deployment.template.yaml) -replace '__BUILD_NUMBER__', '%IMAGE_TAG%' | Set-Content blue-deployment.yaml\""
+                        bat "powershell -Command \"(Get-Content blue-deployment.yaml) -replace '__BUILD_NUMBER__', '%IMAGE_TAG%' | Set-Content blue-deployment.yaml\""
                         bat 'kubectl apply -f blue-deployment.yaml'
                         bat 'kubectl apply -f service.yaml'
                     }
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 dir('User\\k8s') {
                     script {
-                        bat "powershell -Command \"(Get-Content green-deployment.template.yaml) -replace '__BUILD_NUMBER__', '%IMAGE_TAG%' | Set-Content green-deployment.yaml\""
+                        bat "powershell -Command \"(Get-Content green-deployment.yaml) -replace '__BUILD_NUMBER__', '%IMAGE_TAG%' | Set-Content green-deployment.yaml\""
                         bat 'kubectl apply -f green-deployment.yaml'
                         bat '''kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"green\\"}}}"'''
                     }
