@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config'
-        DOCKERHUB_USER = 'swathikulk'   // Replace with your Docker Hub username
-        IMAGE_TAG = "${env.BUILD_NUMBER}"            // Unique tag for each build
+        DOCKERHUB_USER = 'swathikulk'
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -41,10 +41,9 @@ pipeline {
             steps {
                 dir('User\\k8s') {
                     script {
-                        bat """
-                        kubectl apply -f blue-deployment.yaml
-                        kubectl apply -f service.yaml
-                        """
+                        bat "powershell -Command \"(Get-Content blue-deployment.template.yaml) -replace '__BUILD_NUMBER__', '%IMAGE_TAG%' | Set-Content blue-deployment.yaml\""
+                        bat 'kubectl apply -f blue-deployment.yaml'
+                        bat 'kubectl apply -f service.yaml'
                     }
                 }
             }
@@ -54,6 +53,7 @@ pipeline {
             steps {
                 dir('User\\k8s') {
                     script {
+                        bat "powershell -Command \"(Get-Content green-deployment.template.yaml) -replace '__BUILD_NUMBER__', '%IMAGE_TAG%' | Set-Content green-deployment.yaml\""
                         bat 'kubectl apply -f green-deployment.yaml'
                         bat '''kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"green\\"}}}"'''
                     }
