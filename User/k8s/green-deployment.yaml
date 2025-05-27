@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask-green
+  name: flask-green-latest
 spec:
   replicas: 1
   selector:
@@ -15,8 +15,8 @@ spec:
         version: green
     spec:
       containers:
-      - name: flask-container
-        image: flask-app:green
-        ports:
-        - containerPort: 5000
-        imagePullPolicy: IfNotPresent
+        - name: flask-container
+          image: flask-app:green
+          ports:
+            - containerPort: 5000
+          imagePullPolicy: IfNotPresent
