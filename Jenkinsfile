@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config'
-        DOCKERHUB_USER = 'your_dockerhub_username'   // Replace with your Docker Hub username
+        DOCKERHUB_USER = 'swathikulk'   // Replace with your Docker Hub username
         IMAGE_TAG = "${env.BUILD_NUMBER}"            // Unique tag for each build
     }
 
