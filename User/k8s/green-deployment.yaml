@@ -21,4 +21,4 @@ spec:
           image: supriya334/flask-app:green-__BUILD_NUMBER__
           ports:
             - containerPort: 5000
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always

@@ -19,4 +19,4 @@ spec:
           image: supriya334/flask-app:blue-__BUILD_NUMBER__
           ports:
             - containerPort: 5000
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
