@@ -165,7 +165,7 @@ pipeline {
                         echo "User rejected Green. Rolling back to previous Blue deployment."
 
                         dir('User\\k8s') {
-                            bat "powershell -Command \"(Get-Content blue-deployment.yaml) -replace '_BUILD_NUMBER_', '${env.PREVIOUS_BUILD}' | Set-Content blue-deployment.yaml\""
+                            bat "powershell -Command \"(Get-Content blue-deployment.yaml) -replace '__BUILD_NUMBER__', '${env.PREVIOUS_BUILD}' | Set-Content blue-deployment.yaml\""
                             bat 'kubectl apply -f blue-deployment.yaml'
                             bat 'kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"blue\\"}}}"'
                         }
