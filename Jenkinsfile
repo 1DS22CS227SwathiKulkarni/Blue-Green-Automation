@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        KUBECONFIG = 'C:/Program Files/Jenkins/.kube/config'
+        KUBECONFIG = 'C:/Users/Swathi Kulkarni/.kube/config'
         DOCKERHUB_USER = 'supriya334'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
