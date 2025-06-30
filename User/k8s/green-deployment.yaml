@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: flask-container
-          image: supriya334/flask-app:green-10
+          image: supriya334/flask-app:green-9
           ports:
             - containerPort: 5000
           imagePullPolicy: IfNotPresent
