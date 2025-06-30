@@ -86,12 +86,9 @@
 
 pipeline {
     agent any
-
     environment {
-        KUBECONFIG = 'C:/Users/Swathi Kulkarni/.kube/config'
-        DOCKERHUB_USER = 'supriya334'
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        PREVIOUS_BUILD = "${BUILD_NUMBER.toInteger() - 1}"
+        DOCKER_USER = 'supriya334'
+        DOCKER_IMAGE = 'flask-app'
     }
 
     stages {
@@ -105,9 +102,9 @@ pipeline {
             steps {
                 dir('User') {
                     script {
-                        echo "Building Docker images with tag: ${IMAGE_TAG}"
-                        bat "docker build -t %DOCKERHUB_USER%/flask-app:blue-%IMAGE_TAG% ."
-                        bat "docker tag %DOCKERHUB_USER%/flask-app:blue-%IMAGE_TAG% %DOCKERHUB_USER%/flask-app:green-%IMAGE_TAG%"
+                        echo "Building Docker images with tag: ${BUILD_NUMBER}"
+                        bat "docker build -t ${DOCKER_USER}/${DOCKER_IMAGE}:blue-${BUILD_NUMBER} ."
+                        bat "docker tag ${DOCKER_USER}/${DOCKER_IMAGE}:blue-${BUILD_NUMBER} ${DOCKER_USER}/${DOCKER_IMAGE}:green-${BUILD_NUMBER}"
                     }
                 }
             }
@@ -115,12 +112,12 @@ pipeline {
 
         stage('Push Images to DockerHub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     script {
                         echo "Logging in to DockerHub"
-                        bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
-                        bat "docker push %DOCKERHUB_USER%/flask-app:blue-%IMAGE_TAG%"
-                        bat "docker push %DOCKERHUB_USER%/flask-app:green-%IMAGE_TAG%"
+                        bat "docker login -u %DOCKER_USER% -p %DOCKER_PASS%"
+                        bat "docker push ${DOCKER_USER}/${DOCKER_IMAGE}:blue-${BUILD_NUMBER}"
+                        bat "docker push ${DOCKER_USER}/${DOCKER_IMAGE}:green-${BUILD_NUMBER}"
                     }
                 }
             }
@@ -128,12 +125,12 @@ pipeline {
 
         stage('Deploy Blue') {
             steps {
-                dir('User\\k8s') {
+                dir('User/k8s') {
                     script {
-                        echo "Deploying Blue version: ${IMAGE_TAG}"
-                        bat "powershell -Command \"(Get-Content blue-deployment.yaml) -replace '_BUILD_NUMBER_', '${IMAGE_TAG}' | Set-Content blue-deployment.yaml\""
-                        bat 'kubectl apply -f blue-deployment.yaml'
-                        bat 'kubectl apply -f service.yaml'
+                        echo "Deploying Blue version: ${BUILD_NUMBER}"
+                        bat "powershell -Command \"(Get-Content blue-deployment.yaml) -replace 'BUILD_NUMBER', '${BUILD_NUMBER}' | Set-Content blue-deployment.yaml\""
+                        bat "kubectl apply -f blue-deployment.yaml"
+                        bat "kubectl apply -f service.yaml"
                     }
                 }
             }
@@ -141,11 +138,11 @@ pipeline {
 
         stage('Deploy Green') {
             steps {
-                dir('User\\k8s') {
+                dir('User/k8s') {
                     script {
-                        echo "Deploying Green version: ${IMAGE_TAG}"
-                        bat "powershell -Command \"(Get-Content green-deployment.yaml) -replace '_BUILD_NUMBER_', '${IMAGE_TAG}' | Set-Content green-deployment.yaml\""
-                        bat 'kubectl apply -f green-deployment.yaml'
+                        echo "Deploying Green version: ${BUILD_NUMBER}"
+                        bat "powershell -Command \"(Get-Content green-deployment.yaml) -replace 'BUILD_NUMBER', '${BUILD_NUMBER}' | Set-Content green-deployment.yaml\""
+                        bat "kubectl apply -f green-deployment.yaml"
                     }
                 }
             }
@@ -154,37 +151,25 @@ pipeline {
         stage('Manual Approval') {
             steps {
                 script {
-                    def userChoice = input(
-                        id: 'ApproveGreen',
-                        message: 'Should we switch traffic to Green?',
-                        parameters: [choice(name: 'Decision', choices: ['Yes', 'No'], description: 'Is Green healthy?')]
+                    def userInput = input(
+                        message: 'Switch traffic to Green?',
+                        parameters: [
+                            choice(name: 'Approve', choices: ['Yes', 'No'], description: 'Approve deployment to Green?')
+                        ]
                     )
-
-                    if (userChoice == 'Yes') {
-                        echo "✅ Switching traffic to Green"
-                        bat 'kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"green\\"}}}"'
+                    if (userInput == 'Yes') {
+                        echo '✅ Switching traffic to Green'
+                        bat 'kubectl patch service flask-service -p "{\"spec\":{\"selector\":{\"app\":\"flask\",\"version\":\"green\"}}}"'
                     } else {
-                        echo "❌ Reverting back to previous Blue deployment: blue-${PREVIOUS_BUILD}"
-                        bat "powershell -Command \"(Get-Content blue-deployment.yaml) -replace '_BUILD_NUMBER_', '${PREVIOUS_BUILD}' | Set-Content blue-deployment.yaml\""
-                        bat 'kubectl apply -f blue-deployment.yaml'
-                        bat 'kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"blue\\"}}}"'
-                        bat 'kubectl delete deployment flask-green || echo "No green deployment to delete."'
+                        error("❌ Deployment not approved. Halting pipeline.")
                     }
                 }
             }
         }
 
         stage('Cleanup Blue') {
-            when {
-                expression { return input == 'Yes' }
-            }
             steps {
-                dir('User\\k8s') {
-                    script {
-                        echo "Cleaning up old Blue deployment"
-                        bat 'kubectl delete deployment flask-blue || echo "No existing blue deployment found."'
-                    }
-                }
+                echo "🧹 You can add blue cleanup logic here if needed"
             }
         }
     }
@@ -192,6 +177,9 @@ pipeline {
     post {
         failure {
             echo '🚨 Deployment failed. Check logs.'
+        }
+        success {
+            echo '🎉 Deployment succeeded!'
         }
     }
 }
