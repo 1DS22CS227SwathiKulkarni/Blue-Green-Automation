@@ -1,1 +1,22 @@
-image: supriya334/flask-app:blue__BUILD_NUMBER__
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-blue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: flask
+        version: blue
+    spec:
+      containers:
+        - name: flask-container
+          image: supriya334/flask-app:blue-__BUILD_NUMBER__
+          ports:
+            - containerPort: 5000
+          imagePullPolicy: Always
