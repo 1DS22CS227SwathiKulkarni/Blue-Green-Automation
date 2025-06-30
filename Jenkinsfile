@@ -162,22 +162,23 @@ pipeline {
                     )
 
                     if (userInput == 'No') {
-    echo "User rejected Green. Rolling back to previous Blue deployment."
+                        dir('User\\k8s') {
+                        def prevBuild = (env.BUILD_NUMBER.toInteger() - 1).toString()
+                        echo "Rolling back to build number: ${prevBuild}"
 
-    dir('User\\k8s') {
-        def prevBuild = (env.BUILD_NUMBER.toInteger() - 1).toString()
-        echo "Rolling back to build number: ${prevBuild}"
-        bat "copy blue-deployment-template.yaml blue-deployment.yaml"
-        bat "powershell -Command \"(Get-Content blue-deployment.yaml) -replace '_BUILD_NUMBER_', '${prevBuild}' | Set-Content blue-deployment.yaml\""
-        bat 'kubectl apply -f blue-deployment.yaml'
-        bat 'kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"blue\\"}}}"'
-    }
+                        // Always generate fresh deployment YAML from the template
+                        bat "powershell -Command \"(Get-Content blue-deployment-template.yaml) -replace '__BUILD_NUMBER__', '${prevBuild}' | Set-Content blue-deployment.yaml\""
 
-    dir('User\\k8s') {
-        bat 'kubectl delete deployment flask-green || echo "No existing green deployment found."'
-    }
-}
+                        bat 'kubectl apply -f blue-deployment.yaml'
+                        bat 'kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"blue\\"}}}"'
+                    }
 
+                    // Delete green deployment
+                        dir('User\\k8s') {
+                        bat 'kubectl delete deployment flask-green || echo "No existing green deployment found."'
+                    }
+
+                    }
                 }
             }
         }
