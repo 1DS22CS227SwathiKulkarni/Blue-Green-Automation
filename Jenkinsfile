@@ -131,7 +131,7 @@ pipeline {
                 dir('User\\k8s') {
                     script {
                         echo "Deploying Blue version with tag: ${env.IMAGE_TAG}"
-                        bat "powershell -Command \"(Get-Content blue-deployment.yaml) -replace '_BUILD_NUMBER_', '${env.IMAGE_TAG}' | Set-Content blue-deployment.yaml\""
+                        bat "powershell -Command \"(Get-Content blue-deployment.yaml) -replace '__BUILD_NUMBER__', '${env.IMAGE_TAG}' | Set-Content blue-deployment.yaml\""
                         bat 'kubectl apply -f blue-deployment.yaml'
                         bat 'kubectl apply -f service.yaml'
                     }
@@ -144,7 +144,7 @@ pipeline {
                 dir('User\\k8s') {
                     script {
                         echo "Deploying Green version and switching traffic"
-                        bat "powershell -Command \"(Get-Content green-deployment.yaml) -replace '_BUILD_NUMBER_', '${env.IMAGE_TAG}' | Set-Content green-deployment.yaml\""
+                        bat "powershell -Command \"(Get-Content green-deployment.yaml) -replace '__BUILD_NUMBER__', '${env.IMAGE_TAG}' | Set-Content green-deployment.yaml\""
                         bat 'kubectl apply -f green-deployment.yaml'
                         bat 'kubectl patch service flask-service -p "{\\"spec\\":{\\"selector\\":{\\"app\\":\\"flask\\",\\"version\\":\\"green\\"}}}"'
                     }
