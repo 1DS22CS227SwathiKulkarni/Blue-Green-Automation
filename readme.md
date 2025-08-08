@@ -56,6 +56,7 @@ Frequent feature updates in web applications demand a reliable deployment strate
 <img width="772" height="229" alt="image" src="https://github.com/user-attachments/assets/9a189c8f-9e5b-4592-905f-9ad3a59fa0c6" />
 
 - Blue/Green Deployment Toggle UI
+<img width="772" height="456" alt="image" src="https://github.com/user-attachments/assets/61faf7db-eb6a-4533-ba0d-4c2c688763a2" />
 
 ## Project Structure
 Blue-Green/
