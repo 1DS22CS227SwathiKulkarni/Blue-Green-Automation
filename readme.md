@@ -59,38 +59,37 @@ Frequent feature updates in web applications demand a reliable deployment strate
 <img width="772" height="456" alt="image" src="https://github.com/user-attachments/assets/61faf7db-eb6a-4533-ba0d-4c2c688763a2" />
 
 ## Project Structure
-Blue-Green/
-├── ADMIN/
-│   ├── static/
-        ├── css
-        ├── imgvid
-│   ├── templates/
-│   ├── app2.py
-│   ├── booktemp.html
-│   ├── calculate.py
-│   └── password.text
-│   └── nginx.conf
-├── User/
-│   ├── __pycache__/
-│   ├── k8s/
-│   │   ├── nginx.conf
-│   │   ├── blue-deployment-template.yaml
-│   │   ├── blue-deployment.yaml
-│   │   ├── green-deployment.yaml
-│   │   └── service.yaml
-│   ├── static/
-│   ├── templates/
-│   ├── .dockerignore
-│   ├── app.py
-│   ├── booktemp.html
-│   ├── calculate.py
-│   ├── Dockerfile
-│   ├── nginx.conf
-│   ├── password.text
-│   └── requirements.txt
-├── .gitignore
-├── Jenkinsfile
-├── readme.md
-└── temp
+
+- **Blue-Green/**
+  - **ADMIN/**
+    - static/
+    - templates/
+    - app2.py
+    - booktemp.html
+    - calculate.py
+    - password.text
+    - nginx.conf
+  - **User/**
+    - __pycache__/
+    - **k8s/**
+      - nginx.conf
+      - blue-deployment-template.yaml
+      - blue-deployment.yaml
+      - green-deployment.yaml
+      - service.yaml
+    - static/
+    - templates/
+    - .dockerignore
+    - app.py
+    - booktemp.html
+    - calculate.py
+    - Dockerfile
+    - nginx.conf
+    - password.text
+    - requirements.txt
+  - .gitignore
+  - Jenkinsfile
+  - readme.md
+  - temp/
 
 > This project demonstrates real-world DevOps implementation for continuous delivery and deployment automation with Blue-Green strategy using modern cloud-native tools.
